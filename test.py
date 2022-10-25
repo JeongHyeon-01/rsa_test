@@ -15,10 +15,12 @@ print("private Key : ")
 print(privKey)
 
 print("\n")
-print("public key : ")
+print("public key : PEM Version")
 print(publicKey)
-print(publicKey.validate)
-print(publicKey.implementation)
+
+print("\n")
+print("public key")
+print(publicKey.exportKey("PEM"))
 
 
 print("\n")
