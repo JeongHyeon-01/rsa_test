@@ -1,14 +1,22 @@
-from datetime import datetime, timedelta
-from fastapi import FastAPI,Response,Cookie, Request
-from typing import Optional
-from Crypto import Random 
-from pydantic import BaseModel
-from jose import jwt
 from Crypto.PublicKey import RSA
 from Crypto.Random import get_random_bytes
 from Crypto.Cipher import AES, PKCS1_OAEP
 
-private = '''-----BEGIN RSA PRIVATE KEY-----
+
+
+# key = RSA.generate(2048)
+# private_key = key.export_key()
+# file_out = open("private.pem", "wb")
+# file_out.write(private_key)
+# file_out.close()
+
+# public_key = key.publickey().export_key()
+# file_out = open("receiver.pem", "wb")
+# file_out.write(public_key)
+# file_out.close()
+# data = "I met aliens in UFO. Here is the map.".encode("utf-8")
+# file_out = open("encrypted_data.bin", "wb")
+private_key = '''-----BEGIN RSA PRIVATE KEY-----
 MIIEpAIBAAKCAQEAguLURwwOR6nNVaGq1PsM1LNjWfGTTaPwWQdIeaKWC4AlmkM4
 FqriVPCQLqRVT7sE41zOoMPHD07h9Vst70FSxxwfBXBXwLl71EiowSqd7mITS0GU
 oqyXahlzbPLkmnw9o8wn/L9Os/wspOeaYaVqOXBBCv8U6W7GZoTJvvdIXdb2hved
@@ -36,7 +44,8 @@ oqIlot2LQE1aYao+F5KYnriPhUcu5EJAONELFo24/c/8D4p/0oP1ubgKrYnm039j
 9m98tV/WwKo3h+PdugDSJNHNBCVBOUDQa/1kGYNI8WLE3DntzYCAcg==
 -----END RSA PRIVATE KEY-----
 '''
-public ='''
+
+public_key ='''
 -----BEGIN PUBLIC KEY-----
 MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAguLURwwOR6nNVaGq1PsM
 1LNjWfGTTaPwWQdIeaKWC4AlmkM4FqriVPCQLqRVT7sE41zOoMPHD07h9Vst70FS
@@ -47,26 +56,38 @@ ET519DBf8IPlUWf/UaGQxLglxou3HEJFoSyrRDOXvsAodmu8AazIQd6PiDMXrCWP
 0QIDAQAB
 -----END PUBLIC KEY-----'''
 
-# public =b'-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC8krG4qYko3rvzdaM+BnOaCSjm\nO6q22ou8E+HYhxjHC6RcthHHOJacbsWo9cBX0pnM31YOUp53KBO07RlV5SnjQeF2\nXtNl8dOYtkCPPTz7up5xnzIFiQgNTRH0AsXs4HTL6vxG9bvCf7ezcK5vOhSfOdS9\nDQ1/9MMo4xnrqpehcQIDAQAB\n-----END PUBLIC KEY-----'
-# text = b'{\n\t"domain":"Default",\n\t"password":"Admin123!",\n\t"region":"RegionOne",\n\t"username":"admin"\n}'
-# res = RSA.import_key(public)
-# session_key = get_random_bytes(16)
-# cipher_rsa = PKCS1_OAEP.new(res)
-# enc_session_key = cipher_rsa.encrypt(session_key)
-# cipher_aes = AES.new(session_key, AES.MODE_EAX)
-# ciphertext = cipher_aes.encrypt(text)
 
-# cipherText = (b'\x1bS\xbex\xe3:\x9c\x0f\xce\xd1\r\xec\x1d\xe6\x075\x8b\xcd\x9aP0\x0bk\x05w\xf1e,%\xe6\xb96\x06\xe7+\xae\x17>\xfe\xa4\x8b$\xbb\x18\\\x83\x9b\xb4j8\'"\xb4\'\xfa\xe2\xe3Q9+s\xeb\x082\xd3\x1aT\xf3b5\xd8\x82\xe3\xe7\x11\xbc\r\x89\xef{\xf9\x98\xe7\xe5\x9d\xd3\x0c\x1c]eQ\x80\x81z8\xa5\xe3\xc9\xb6\xa5Lc\x1ab\xb1\xb2\x0c\xf4\x8d5,Am\xde\xbc\xdb\rTri#\xed\xcf\xbb\x9a\x7fu\xd5];\xcf1\xad6\x92\x96\x87\xd1\xd4dSC-PCM\xb6\xa1\xdc!o\x8b\xdc\x80\x1e\xf3\xa1p\xccL\x9f\x1d0hq\xce"\xd1C\x91\x93s\xbe\xbe\xbb\x00\x90\x02\x81\xf6\xf7T\xc3\xba2\x01\xb7WF\xd5rNe!\xda\xf4\xd0\x9d4\xbc\xd8\xc7\xa7n\xbaT\x07I @\xa3\xec\xe8c<\xe5\xfar\xba>\xf6Iy\xf4$\xb9M[\xbbao\xf2\xa1#N\xb9^\xb7\x96\xd1M\x95G@i\xe9#\x97h\xd4M-\x92]\xd2\xbe',)
-# print("\n")
-# print("암호문 :")
-# print(ciphertext, "\n", type(ciphertext))
+recipient_key = RSA.import_key(open("receiver.pem").read())
+session_key = get_random_bytes(16)
 
-### in <module>
-    decryptor = PKCS1_OAEP.new(privKey)ipher_rsa.decrypt(ciphertext)
+# Encrypt the session key with the public RSA key
+cipher_rsa = PKCS1_OAEP.new(recipient_key)
+enc_session_key = cipher_rsa.encrypt(session_key)
 
-#decryption
-# key = RSA.importKey(private)
-# res = key.decrypt(cipherText).decode()
-print("\n")
-print("Plan Text :")
-print(eval(res), "\n", type(eval(res)))
+# Encrypt the data with the AES session key
+cipher_aes = AES.new(session_key, AES.MODE_EAX)
+ciphertext, tag = cipher_aes.encrypt_and_digest(data)
+[ file_out.write(x) for x in (enc_session_key, cipher_aes.nonce, tag, ciphertext) ]
+file_out.close()
+
+
+
+file_in = open("encrypted_data.bin", "rb")
+
+private_key = RSA.import_key(open("private.pem").read())
+
+enc_session_key, nonce, tag, ciphertext = \
+   [ file_in.read(x) for x in (private_key.size_in_bytes(), 16, 16, -1) ]
+print("enc_session_key : ",enc_session_key)
+print("nonce : ", nonce)
+print("ciphertext : ",ciphertext)
+# Decrypt the session key with the private RSA key
+cipher_rsa = PKCS1_OAEP.new(private_key)
+session_key = cipher_rsa.decrypt(enc_session_key)
+print("session_key : ", session_key)
+# Decrypt the data with the AES session key
+cipher_aes = AES.new(session_key, AES.MODE_EAX, nonce)
+print(cipher_aes)
+data = cipher_aes.decrypt(ciphertext)
+# data = cipher_aes.decrypt_and_verify(ciphertext, tag)
+print(data.decode("utf-8"))
